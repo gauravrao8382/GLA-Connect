@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Feed from "./Feed";
 import Profile from "./Profile";
-import Search from "./Search"
+import Search from "./Search";
 
 const API = "http://localhost:3000";
 
@@ -11,15 +11,10 @@ const HomePage = () => {
   const [activeTab, setActiveTab] = useState("feed");
 
   const [posts, setPosts] = useState([]);
-  const [feedPosts,setFeedPosts] = useState([]);
+  const [feedPosts, setFeedPosts] = useState([]);
 
   const [showNewPost, setShowNewPost] = useState(false);
   const [newPost, setNewPost] = useState("");
-
-  // 🔍 USER SEARCH STATES
-  const [showUserSearch, setShowUserSearch] = useState(false);
-  const [userSearch, setUserSearch] = useState("");
-  const [users, setUsers] = useState([]);
 
   /* ================= USER ================= */
   useEffect(() => {
@@ -47,23 +42,16 @@ const HomePage = () => {
     fetchPosts();
   }, []);
 
-  /* ================= USERS (FOR SEARCH) ================= */
-  useEffect(() => {
-    const fetchUsers = async () => {
-      const res = await axios.get(`${API}/users`);
-      setUsers(res.data.users);
-    };
-    fetchUsers();
-  }, []);
-
   /* ================= ADD POST ================= */
   const addPost = async () => {
     if (!newPost.trim()) return alert("Post cannot be empty");
+
     try {
       const res = await axios.post(`${API}/new`, {
         post: newPost,
         email: user.email,
       });
+
       setPosts(res.data.posts);
       setNewPost("");
       setShowNewPost(false);
@@ -72,7 +60,6 @@ const HomePage = () => {
       alert("Error adding post");
     }
   };
-
 
   return (
     <div className="relative min-h-screen bg-black pb-20 text-white">
@@ -83,7 +70,7 @@ const HomePage = () => {
         {activeTab === "profile" && (
           <Profile user={user} setUser={setUser} posts={posts} />
         )}
-        {activeTab === "search" && <Search me={user}/>}
+        {activeTab === "search" && <Search me={user} />}
       </div>
 
       {/* ================= ADD POST MODAL ================= */}
@@ -117,38 +104,42 @@ const HomePage = () => {
           </div>
         </div>
       )}
-      
-      {/* ================= BOTTOM NAV ================= */}
-      <div className="fixed bottom-0 left-0 w-full bg-black border-t border-gray-700 flex justify-around py-3">
+
+      {/* ================= RESPONSIVE BOTTOM NAV ================= */}
+      <div className="fixed bottom-0 left-0 w-full bg-black border-t border-gray-800 flex justify-around py-2 lg:py-4 shadow-lg">
 
         {/* FEED */}
         <button
-          className={`flex flex-col items-center ${
+          className={`flex flex-col items-center text-[10px] sm:text-xs lg:text-sm ${
             activeTab === "feed" ? "text-orange-500" : "text-white"
           }`}
           onClick={() => setActiveTab("feed")}
         >
-          <span className="material-icons">dynamic_feed</span>
+          <span className="material-icons text-[20px] sm:text-[24px] lg:text-[30px]">
+            dynamic_feed
+          </span>
           Feed
         </button>
 
-        {/* SEARCH USERS */}
+        {/* SEARCH */}
         <button
-          className={`flex flex-col items-center ${
+          className={`flex flex-col items-center text-[10px] sm:text-xs lg:text-sm ${
             activeTab === "search" ? "text-orange-500" : "text-white"
           }`}
           onClick={() => setActiveTab("search")}
         >
-          <span className="material-icons">search</span>
+          <span className="material-icons text-[20px] sm:text-[24px] lg:text-[30px]">
+            search
+          </span>
           Search
         </button>
 
         {/* ADD POST */}
         <button
-          className="flex flex-col items-center"
+          className="flex flex-col items-center text-[10px] sm:text-xs lg:text-sm"
           onClick={() => setShowNewPost(true)}
         >
-          <span className="material-icons  text-3xl">
+          <span className="material-icons text-[26px] sm:text-[32px] lg:text-[40px]">
             add_circle
           </span>
           Post
@@ -156,12 +147,14 @@ const HomePage = () => {
 
         {/* PROFILE */}
         <button
-          className={`flex flex-col items-center ${
+          className={`flex flex-col items-center text-[10px] sm:text-xs lg:text-sm ${
             activeTab === "profile" ? "text-orange-500" : "text-white"
           }`}
           onClick={() => setActiveTab("profile")}
         >
-          <span className="material-icons">account_circle</span>
+          <span className="material-icons text-[20px] sm:text-[24px] lg:text-[30px]">
+            account_circle
+          </span>
           Profile
         </button>
       </div>

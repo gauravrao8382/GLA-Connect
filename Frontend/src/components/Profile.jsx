@@ -15,14 +15,15 @@ const Profile = ({ user, setUser, posts }) => {
   const [editPostId, setEditPostId] = useState(null);
   const [editPostText, setEditPostText] = useState("");
   const [showFriends, setShowFriends] = useState(false);
-
   const [search, setSearch] = useState("");
   const [filteredFriends, setFilteredFriends] = useState([]);
 
+  /* -------------------- Sync Name -------------------- */
   useEffect(() => {
     if (user?.name) setName(user.name);
   }, [user]);
 
+  /* -------------------- Filter My Posts -------------------- */
   useEffect(() => {
     if (posts && user?.email) {
       const filtered = posts.filter(p => p.email === user.email);
@@ -30,12 +31,19 @@ const Profile = ({ user, setUser, posts }) => {
     }
   }, [posts, user]);
 
+  /* -------------------- ENABLED SEARCH FILTER -------------------- */
   useEffect(() => {
-    if (user?.friends) {
-      setFilteredFriends(user.friends);
-    }
+    if (!user?.friends) return;
+
+    const filtered = user.friends.filter(friend => {
+      const name = friend.friendName || "";
+      return name.toLowerCase().includes(search.toLowerCase());
+    });
+
+    setFilteredFriends(filtered);
   }, [search, user]);
 
+  /* -------------------- Save Name -------------------- */
   const handleSave = async (id) => {
     const res = await axios.put(`${API}/editname/${id}`, { name });
     setUser(res.data.user);
@@ -43,12 +51,14 @@ const Profile = ({ user, setUser, posts }) => {
     setEditName(false);
   };
 
+  /* -------------------- Logout -------------------- */
   const Logout = () => {
     localStorage.removeItem("token");
     setUser(null);
     navigate("/login");
   };
 
+  /* -------------------- Delete Post -------------------- */
   const deletePost = async (id) => {
     const res = await axios.delete(`${API}/delete/${id}`);
     alert(res.data.message);
@@ -56,6 +66,7 @@ const Profile = ({ user, setUser, posts }) => {
     setActivePost(null);
   };
 
+  /* -------------------- Edit Post -------------------- */
   const editPost = async () => {
     const res = await axios.put(`${API}/edit/${editPostId}`, {
       post: editPostText
@@ -68,16 +79,17 @@ const Profile = ({ user, setUser, posts }) => {
     );
 
     alert(res.data.message);
+    setEditPostId(null);
+    setEditPostText("");
     setActivePost(null);
   };
 
   return (
     <div className="min-h-screen bg-black text-white px-4 md:px-10 py-6">
 
-      {/* 🔝 PROFILE HEADER */}
+      {/* PROFILE HEADER */}
       <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center gap-4 md:gap-6">
 
-        {/* Profile Image */}
         <div className="w-16 h-16 md:w-24 md:h-24 rounded-full bg-orange-500 flex items-center justify-center text-2xl md:text-4xl font-bold">
           {user?.name?.charAt(0)}
         </div>
@@ -94,9 +106,7 @@ const Profile = ({ user, setUser, posts }) => {
                 {user?.email}
               </p>
 
-              {/* Stats */}
               <div className="flex justify-center md:justify-start gap-6 md:gap-10 mt-4">
-
                 <div>
                   <p className="text-lg md:text-2xl font-bold">
                     {myPosts.length}
@@ -117,7 +127,6 @@ const Profile = ({ user, setUser, posts }) => {
                     Friends
                   </p>
                 </div>
-
               </div>
 
               <button
@@ -152,7 +161,7 @@ const Profile = ({ user, setUser, posts }) => {
         </div>
       </div>
 
-      {/* 🧱 POSTS */}
+      {/* POSTS */}
       <div className="max-w-5xl mx-auto mt-10">
         <h3 className="text-lg md:text-xl font-semibold mb-4">
           Your Confessions
@@ -163,12 +172,12 @@ const Profile = ({ user, setUser, posts }) => {
         )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {myPosts.map((post, index) => (
+          {myPosts.map((post) => (
             <div key={post._id} className="bg-zinc-900 p-4 rounded-lg relative">
 
-              {activePost !== index ? (
+              {activePost !== post._id ? (
                 <button
-                  onClick={() => setActivePost(index)}
+                  onClick={() => setActivePost(post._id)}
                   className="absolute top-2 right-2"
                 >
                   <FiMoreVertical />
@@ -204,11 +213,11 @@ const Profile = ({ user, setUser, posts }) => {
         </div>
       </div>
 
-      {/* 👥 FRIEND PANEL */}
+      {/* FRIEND PANEL */}
       {showFriends && (
         <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex justify-center items-start md:items-center">
 
-          <div className="bg-zinc-900 w-full md:w-[500px] h-[80vh] md:h-[75vh] rounded-t-3xl md:rounded-3xl p-6 relative animate-slideDown">
+          <div className="bg-zinc-900 w-full md:w-[500px] h-[80vh] md:h-[75vh] rounded-t-3xl md:rounded-3xl p-6 relative">
 
             <button
               onClick={() => setShowFriends(false)}
@@ -244,7 +253,7 @@ const Profile = ({ user, setUser, posts }) => {
                     className="flex items-center gap-3 bg-zinc-800 p-3 rounded-lg mb-2 cursor-pointer hover:bg-zinc-700 transition"
                   >
                     <div className="w-8 h-8 md:w-10 md:h-10 bg-orange-500 rounded-full flex items-center justify-center font-bold text-sm md:text-base">
-                      {friend.friendId?.name?.charAt(0) || "F"}
+                      {friend.friendName?.charAt(0) || "F"}
                     </div>
                     <p className="text-sm md:text-base">
                       {friend.friendName || "Friend"}
