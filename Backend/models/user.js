@@ -22,6 +22,9 @@ const userSchema=new mongoose.Schema({
         {
             friendId:{
                 type: String,
+            },
+            friendName:{
+                type: String,
             }
         }
     ]

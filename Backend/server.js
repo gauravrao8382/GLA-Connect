@@ -295,9 +295,10 @@ app.get('/user/:id/request',async(req,res)=>{
         const {id} = req.params;
         const {myId} = req.query;
         const Requestfind = await Friend.findOne({fromId:id,toId:myId});
+        
         if (Requestfind) {
             console.log(Requestfind.status);
-            if(Requestfind.status==="Request"){
+            if(Requestfind.status==="Request Sent"){
                 return res.status(200).json({
                     status: "Accept Request",
                 });
@@ -367,9 +368,9 @@ app.post("/user/:id/requestcancel",async(req,res)=>{
 
 app.post("/user/:id/requestAccept",async(req,res)=>{
     try {
-        const {fromId,toId} = req.body;
-        await User.findByIdAndUpdate(fromId,{$push:{friends:{friendId:toId}}},{new:true});
-        await User.findByIdAndUpdate(toId,{$push:{friends:{friendId:fromId}}},{new:true});
+        const {fromId,toId,fromUser,toUser} = req.body;
+        await User.findByIdAndUpdate(fromId,{$push:{friends:{friendId:toId,friendName:toUser}}},{new:true});
+        await User.findByIdAndUpdate(toId,{$push:{friends:{friendId:fromId,friendName:fromUser}}},{new:true});
         await Friend.findOneAndUpdate({fromId:toId,toId:fromId},{status:"Friend"});
         return res.status(201).json({
             status:"Friend",

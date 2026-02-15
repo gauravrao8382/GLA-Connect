@@ -28,6 +28,7 @@ const SearchPage = ({ me }) => {
     navigate(`/user/${id}`, {
       state: {
         myId: me?._id, // ✅ safe
+        myName:me?.name,
       },
     });
   };
