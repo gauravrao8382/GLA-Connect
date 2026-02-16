@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-const PostCard = ({ post,key,user }) => {
+const PostCard = ({ post,postId,user }) => {
   const API = "http://localhost:3000";
 
   const [liked, setLiked] = useState(false);
@@ -8,13 +8,14 @@ const PostCard = ({ post,key,user }) => {
   const [showComment, setShowComment] = useState(false);
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState([]);
-  const [countLike,setCountLike] = useState("");
+  const [countLike,setCountLike] = useState(0);
   useEffect(() => {
   const fetchLikeComment = async () => {
     try {
       const res = await axios.get(`${API}/getlikes`, {
-        params: { key: post._id },
+        params: { postId:post._id ,userId:user._id},
       });
+      setLiked(res.data.like);
       setCountLike(res.data.count);
     } catch (err) {
       console.log(err);
@@ -46,13 +47,18 @@ const PostCard = ({ post,key,user }) => {
 
   const handleLike = async () => {
   try {
+    if(liked){
+      setLiked(false)
+    }
+    else{
+      setLiked(true)
+    }
     const res = await axios.post(`${API}/addLike`, {
       userId: user._id,
       key: post._id,
     });
-
+    setLiked(res.data.like);
     setCountLike(res.data.count);
-    setLiked(!liked);
 
   } catch (err) {
     console.log("LIKE ERROR", err);

@@ -172,10 +172,18 @@ app.get("/posts",async(req,res)=>{
 })
 app.get('/getlikes',async(req,res)=>{
     try{
-        const postId= req.params;
+        const postId= req.query.postId;
+        const userId = req.query.userId;
         const post=await Post.findById(postId);
+        const checkLike = await Post.findOne({
+            _id: postId,
+            "likes.personId": userId
+        });
+        let like=false;
+        if(checkLike) like=true;
         return res.status(201).json({
             count:post.likes.length,
+            like
         })
     }
     catch(err){
@@ -190,16 +198,32 @@ app.post("/addLike", async (req, res) => {
   try {
     const postId = req.body.key;
     const userId = req.body.userId;
-
-    const updatedPost = await Post.findByIdAndUpdate(
-      postId,
-      { $push: { likes: { personId: userId } } },
-      { new: true }
-    );
-
-    return res.status(200).json({
-      count: updatedPost.likes.length,
-    });
+    const checkLike = await Post.findOne({
+            _id: postId,
+            "likes.personId": userId
+        });
+    let like = true;
+    if(checkLike){
+        like = false
+        const updatedPost=await Post.findByIdAndUpdate(
+        postId,{ $pull: { likes: { personId: userId } } },{ new: true }
+        );
+        return res.status(200).json({
+            count: updatedPost.likes.length,
+            like
+        });
+    }
+    else{
+        const updatedPost = await Post.findByIdAndUpdate(
+            postId,
+            { $push: { likes: { personId: userId } } },
+            { new: true }
+        );
+         return res.status(200).json({
+            count: updatedPost.likes.length,
+            like
+        });
+    }
 
   } catch (err) {
     console.error("LIKE ERROR 👉", err);

@@ -49,7 +49,7 @@ const Feed = ({ feedPosts ,user}) => {
           )}
 
           {feedPosts.map((post) => (
-            <PostCard key={post._id} post={post} user={user}/>
+            <PostCard postId={post._id} post={post} user={user}/>
           ))}
         </div>
       </div>
