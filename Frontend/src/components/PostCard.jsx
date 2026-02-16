@@ -1,11 +1,28 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+const PostCard = ({ post,key,user }) => {
+  const API = "http://localhost:3000";
 
-const PostCard = ({ post }) => {
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
   const [showComment, setShowComment] = useState(false);
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState([]);
+  const [countLike,setCountLike] = useState("");
+  useEffect(() => {
+  const fetchLikeComment = async () => {
+    try {
+      const res = await axios.get(`${API}/getlikes`, {
+        params: { key: post._id },
+      });
+      setCountLike(res.data.count);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  fetchLikeComment();
+}, [post._id]);
 
   // 📅 Responsive Date Format
   const formatDate = (date) => {
@@ -27,7 +44,21 @@ const PostCard = ({ post }) => {
         });
   };
 
-  const handleLike = () => setLiked(!liked);
+  const handleLike = async () => {
+  try {
+    const res = await axios.post(`${API}/addLike`, {
+      userId: user._id,
+      key: post._id,
+    });
+
+    setCountLike(res.data.count);
+    setLiked(!liked);
+
+  } catch (err) {
+    console.log("LIKE ERROR", err);
+  }
+};
+
   const handleSave = () => setSaved(!saved);
 
   const handleComment = () => {
@@ -76,9 +107,10 @@ const PostCard = ({ post }) => {
       {/* ACTION BAR */}
       <div className="flex justify-between items-center mt-2 px-1">
 
-        <div className="flex gap-6">
+        <div className="flex gap-8">
 
-          <button
+          <div className="flex gap-1">
+            <button
             onClick={handleLike}
             className={`flex items-center gap-1 text-sm ${
               liked ? "text-red-500" : "text-gray-300"
@@ -87,8 +119,9 @@ const PostCard = ({ post }) => {
             <span className="material-icons text-[22px]">
               {liked ? "favorite" : "favorite_border"}
             </span>
-            Like
           </button>
+            <p>{countLike}</p>
+          </div>
 
           <button
             onClick={() => setShowComment(!showComment)}

@@ -12,10 +12,9 @@ const postSchema=new mongoose.Schema({
         required:true
     },
     likes:[
-        
-    ],
-    comments:[
-
+        {
+            personId:String
+        }
     ],
     },
     {timestamps: true, }

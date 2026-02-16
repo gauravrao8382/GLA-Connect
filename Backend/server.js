@@ -170,6 +170,45 @@ app.get("/posts",async(req,res)=>{
                     posts:posts
                 });
 })
+app.get('/getlikes',async(req,res)=>{
+    try{
+        const postId= req.params;
+        const post=await Post.findById(postId);
+        return res.status(201).json({
+            count:post.likes.length,
+        })
+    }
+    catch(err){
+        console.error("SERACH ERROR 👉", err);
+        return res.status(500).json({
+            message: "Server error",
+            error: err.message
+        });
+    }
+})
+app.post("/addLike", async (req, res) => {
+  try {
+    const postId = req.body.key;
+    const userId = req.body.userId;
+
+    const updatedPost = await Post.findByIdAndUpdate(
+      postId,
+      { $push: { likes: { personId: userId } } },
+      { new: true }
+    );
+
+    return res.status(200).json({
+      count: updatedPost.likes.length,
+    });
+
+  } catch (err) {
+    console.error("LIKE ERROR 👉", err);
+    return res.status(500).json({
+      message: "Server error",
+      error: err.message
+    });
+  }
+});
 
 app.post("/new",async(req,res)=>{
     

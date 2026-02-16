@@ -66,7 +66,7 @@ const HomePage = () => {
 
       {/* MAIN CONTENT */}
       <div className="p-4">
-        {activeTab === "feed" && <Feed feedPosts={feedPosts} />}
+        {activeTab === "feed" && <Feed feedPosts={feedPosts} user={user} />}
         {activeTab === "profile" && (
           <Profile user={user} setUser={setUser} posts={posts} />
         )}

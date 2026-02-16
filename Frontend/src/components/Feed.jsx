@@ -10,7 +10,7 @@ const stories = [
   { id: 5, name: "Priya" },
 ];
 
-const Feed = ({ feedPosts }) => {
+const Feed = ({ feedPosts ,user}) => {
   return (
     <div className="w-full h-[100dvh] bg-black text-white flex flex-col overflow-x-hidden">
 
@@ -49,7 +49,7 @@ const Feed = ({ feedPosts }) => {
           )}
 
           {feedPosts.map((post) => (
-            <PostCard key={post._id} post={post} />
+            <PostCard key={post._id} post={post} user={user}/>
           ))}
         </div>
       </div>
