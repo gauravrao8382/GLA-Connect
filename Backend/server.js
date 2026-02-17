@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 import cors from "cors";
+import nodemailer from "nodemailer";
 import bcrypt from "bcryptjs";
 dotenv.config();
 
@@ -75,6 +76,39 @@ app.post('/signup', async (req, res) => {
             error: err.message
         });
     }
+});
+
+app.post("/send-otp", async (req, res) => {
+    try {
+        const {email} = req.body;
+        const transporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+            user: "glaconnect96@gmail.com",
+            pass: "xdjuyqhufegpuphs",   
+        },
+        });
+
+        const otp = Math.floor(100000 + Math.random() * 900000);
+        await transporter.sendMail({
+            from: "GLA Connect",
+            to: email,
+            subject: "GLA Connect - Email Verification OTP",
+            text: `Hello,
+                Thank you for registering on GLA Connect.
+                Your OTP for email verification is: ${otp}
+                This OTP is valid for 5 minutes.
+                If you did not request this, please ignore this email.
+                - Team GLA Connect`
+            });
+        console.log("Email sent successfully");
+        return res.status(201).json({
+                message: "Otp sent successfully",
+        });
+  } catch (err) {
+    console.log("Error:", err);
+  }
+
 });
 
 app.post('/login', async (req, res) => {
